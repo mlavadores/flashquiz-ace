@@ -133,42 +133,45 @@ export const StudySession: React.FC<StudySessionProps> = ({
           mode={mode}
         />
 
-        <div className="animate-slide-in">
-          {mode === 'flashcard' ? (
-            <FlashCard
-              question={currentQuestion}
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-              showNavigation={false}
-            />
-          ) : (
-            <QuizCard
-              question={currentQuestion}
-              onAnswer={handleQuizAnswer}
-              selectedAnswer={selectedAnswer}
-            />
+        <div className="flex flex-col items-center space-y-6">
+          <div className="animate-slide-in w-full flex justify-center">
+            {mode === 'flashcard' ? (
+              <FlashCard
+                question={currentQuestion}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                showNavigation={false}
+                className="w-full max-w-3xl"
+              />
+            ) : (
+              <QuizCard
+                question={currentQuestion}
+                onAnswer={handleQuizAnswer}
+                selectedAnswer={selectedAnswer}
+              />
+            )}
+          </div>
+
+          {mode === 'flashcard' && (
+            <div className="w-full flex justify-center">
+              <Card className="bg-muted/50 border-0 max-w-md">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <Button variant="outline" onClick={handlePrevious} disabled={safeCurrentIndex === 0}>
+                      Previous
+                    </Button>
+                    <span className="text-xs text-muted-foreground text-center">
+                      Click card or use buttons
+                    </span>
+                    <Button variant="study" onClick={handleNext}>
+                      {isLastQuestion ? 'Finish' : 'Next'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
-
-        {mode === 'flashcard' && (
-          <div className="flex justify-center">
-            <Card className="bg-muted/50 border-0">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <Button variant="outline" onClick={handlePrevious} disabled={safeCurrentIndex === 0}>
-                    Previous
-                  </Button>
-                  <span className="text-sm text-muted-foreground px-4">
-                    Use the card or buttons to navigate
-                  </span>
-                  <Button variant="study" onClick={handleNext}>
-                    {isLastQuestion ? 'Finish' : 'Next'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
     </div>
   );

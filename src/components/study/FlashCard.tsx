@@ -65,15 +65,15 @@ export const FlashCard: React.FC<FlashCardProps> = ({
   };
 
   return (
-    <div className={cn("w-full max-w-2xl mx-auto", className)}>
+    <div className={cn("w-full max-w-3xl mx-auto", className)}>
       <Card 
         className={cn(
-          "relative h-80 cursor-pointer bg-gradient-card border-0 shadow-card hover:shadow-card-hover transition-smooth",
+          "relative min-h-96 cursor-pointer bg-gradient-card border-0 shadow-card hover:shadow-card-hover transition-smooth",
           isAnimating && "animate-flip"
         )}
         onClick={handleNext}
       >
-        <CardContent className="flex items-center justify-center h-full p-8 text-center relative">
+        <CardContent className="flex items-center justify-center min-h-96 p-8 text-center relative">
           <div className="absolute top-4 right-4 flex items-center space-x-2">
             <span className="text-xs text-muted-foreground">
               {currentView === 'question' ? '1/3' : currentView === 'answer' ? '2/3' : '3/3'}
@@ -89,25 +89,25 @@ export const FlashCard: React.FC<FlashCardProps> = ({
           
           <div className="w-full">
             {currentView === 'question' && (
-              <div className="space-y-4">
+              <div className="space-y-4 w-full max-w-2xl">
                 <div className="text-sm text-muted-foreground font-medium">
                   Question
                 </div>
-                <p className="text-lg font-semibold leading-relaxed text-foreground">
+                <p className="text-base font-semibold leading-relaxed text-foreground text-justify">
                   {question.question}
                 </p>
-                <div className="text-sm text-muted-foreground mt-6">
+                <div className="text-sm text-muted-foreground mt-4">
                   Click Next to see answers
                 </div>
               </div>
-            )}
+            )}}
             
             {currentView === 'answer' && (
-              <div className="space-y-6">
+              <div className="space-y-4 w-full max-w-2xl">
                 <div className="text-sm text-study-secondary font-medium">
                   Answer Choices
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {question.choices?.map((choice, index) => {
                     const letter = String.fromCharCode(65 + index);
                     const isCorrect = getCorrectAnswers().includes(letter);
@@ -115,7 +115,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                       <div
                         key={index}
                         className={cn(
-                          "p-3 rounded-lg border text-left",
+                          "p-3 rounded-lg border text-left text-sm",
                           isCorrect 
                             ? "bg-study-success/10 border-study-success text-study-success" 
                             : "bg-muted border-border"
@@ -127,21 +127,21 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                     );
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground mt-6">
+                <div className="text-sm text-muted-foreground mt-4">
                   Click Next for explanation
                 </div>
               </div>
-            )}
+            )}}
             
             {currentView === 'explanation' && (
-              <div className="space-y-4">
+              <div className="space-y-4 w-full max-w-2xl">
                 <div className="text-sm text-study-primary font-medium">
                   Explanation
                 </div>
-                <p className="text-base leading-relaxed text-foreground text-left">
+                <p className="text-sm leading-relaxed text-foreground text-left">
                   {question.explanation || 'No explanation available.'}
                 </p>
-                <div className="text-sm text-muted-foreground mt-6">
+                <div className="text-sm text-muted-foreground mt-4">
                   Click Next for next question
                 </div>
               </div>

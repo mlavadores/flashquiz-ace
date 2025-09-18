@@ -113,7 +113,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             {currentView === 'question' && (
               <>
                 <div className="space-y-4">
-                  <p className="text-lg font-semibold leading-relaxed text-foreground">
+                  <p className="text-lg font-semibold leading-relaxed text-foreground text-justify">
                     {question.question}
                   </p>
                 </div>

@@ -9,105 +9,91 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
     const text = await response.text();
     
     const questions: Question[] = [];
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    const sections = text.split(/Question \d+ of 529/).filter(section => section.trim().length > 0);
     
-    let currentQuestion: Partial<Question> = {};
-    let questionText = '';
-    let choices: string[] = [];
-    let currentChoice = '';
-    let isInExplanation = false;
-    let explanation = '';
-    let questionNumber = 0;
-    
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i].trim();
+      if (!section) continue;
       
-      // Start of new question
-      if (line.startsWith('Question') && line.includes('of') && line.includes('529')) {
-        // Save previous question if exists
-        if (currentQuestion.question && choices.length > 0 && currentQuestion.answer) {
-          questions.push({
-            id: currentQuestion.id || questionNumber.toString(),
-            question: currentQuestion.question,
-            answer: currentQuestion.answer,
-            choices: [...choices],
-            explanation: explanation.trim(),
-            category: 'AWS Solutions Architect',
-            difficulty: 'medium'
-          } as Question);
+      const lines = section.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      
+      let questionText = '';
+      let choices: string[] = [];
+      let answer = '';
+      let explanation = '';
+      let isInAnswerSection = false;
+      let currentChoice = '';
+      
+      for (let j = 0; j < lines.length; j++) {
+        const line = lines[j];
+        
+        // Check for answer section
+        if (line === 'AnswerDiscussion' || line.startsWith('Correct Answer:')) {
+          isInAnswerSection = true;
+          if (line.startsWith('Correct Answer:')) {
+            answer = line.replace('Correct Answer:', '').trim();
+          }
+          continue;
         }
         
-        // Reset for new question
-        questionNumber++;
-        currentQuestion = { id: questionNumber.toString() };
-        questionText = '';
-        choices = [];
-        currentChoice = '';
-        isInExplanation = false;
-        explanation = '';
-        continue;
-      }
-      
-      // Skip empty lines
-      if (!line) continue;
-      
-      // Check for answer section
-      if (line === 'AnswerDiscussion' || line.startsWith('Correct Answer:')) {
-        isInExplanation = true;
-        if (line.startsWith('Correct Answer:')) {
-          const answer = line.replace('Correct Answer:', '').trim();
-          // Handle multiple correct answers (A, B or A,B format)
-          if (answer.includes(',') || answer.includes(' and ') || answer.includes(' & ')) {
-            currentQuestion.answer = answer.split(/[,&]|\sand\s/).map(a => a.trim());
+        // Collect explanation text
+        if (isInAnswerSection) {
+          if (line.startsWith('Correct Answer:')) {
+            answer = line.replace('Correct Answer:', '').trim();
           } else {
-            currentQuestion.answer = answer;
+            explanation += line + ' ';
           }
+          continue;
         }
-        continue;
-      }
-      
-      // Collect explanation text
-      if (isInExplanation) {
-        explanation += line + ' ';
-        continue;
-      }
-      
-      // Check for answer choices (A., B., C., D.)
-      if (/^[A-Z]\.$/.test(line)) {
-        // Save previous choice if exists
-        if (currentChoice.trim()) {
-          choices.push(currentChoice.trim());
+        
+        // Check for answer choices (A., B., C., D.)
+        if (/^[A-D]\.$/.test(line)) {
+          // Save previous choice if exists
+          if (currentChoice.trim()) {
+            choices.push(currentChoice.trim());
+          }
+          currentChoice = '';
+          continue;
         }
-        currentChoice = '';
-        continue;
+        
+        // Check if we're building a choice (after seeing A., B., etc.)
+        if (choices.length < 4 && questionText.trim() && /^[A-D]\.$/.test(lines[j-1] || '')) {
+          currentChoice = line;
+          continue;
+        }
+        
+        // Continue building current choice
+        if (currentChoice && choices.length < 4) {
+          currentChoice += ' ' + line;
+          continue;
+        }
+        
+        // This is part of the question text
+        if (!isInAnswerSection && !currentChoice) {
+          questionText += line + ' ';
+        }
       }
       
-      // Check if we're building a choice
-      if (choices.length < 4 && questionText.trim()) {
-        currentChoice += line + ' ';
-        continue;
+      // Add the last choice if exists
+      if (currentChoice.trim()) {
+        choices.push(currentChoice.trim());
       }
       
-      // This is part of the question text
-      if (!isInExplanation) {
-        questionText += line + ' ';
-        currentQuestion.question = questionText.trim();
+      // Create question if we have all required parts
+      if (questionText.trim() && choices.length >= 2 && answer) {
+        questions.push({
+          id: (i + 1).toString(),
+          question: questionText.trim(),
+          answer: answer,
+          choices: choices,
+          explanation: explanation.trim() || 'No explanation available.',
+          category: 'AWS Solutions Architect',
+          difficulty: 'medium'
+        });
       }
     }
     
-    // Don't forget the last question
-    if (currentQuestion.question && choices.length > 0 && currentQuestion.answer) {
-      questions.push({
-        id: currentQuestion.id || questionNumber.toString(),
-        question: currentQuestion.question,
-        answer: currentQuestion.answer,
-        choices: [...choices],
-        explanation: explanation.trim(),
-        category: 'AWS Solutions Architect',
-        difficulty: 'medium'
-      } as Question);
-    }
-    
+    console.log(`Parsed ${questions.length} questions from file`);
     return questions;
   } catch (error) {
     console.error('Error parsing questions file:', error);
