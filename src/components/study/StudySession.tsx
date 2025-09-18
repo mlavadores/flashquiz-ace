@@ -33,8 +33,29 @@ export const StudySession: React.FC<StudySessionProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [startTime] = useState(Date.now());
 
-  const currentQuestion = questions[currentIndex];
-  const isLastQuestion = currentIndex === questions.length - 1;
+  // Ensure currentIndex is within bounds
+  const safeCurrentIndex = Math.max(0, Math.min(currentIndex, questions.length - 1));
+  const currentQuestion = questions[safeCurrentIndex];
+  const isLastQuestion = safeCurrentIndex === questions.length - 1;
+
+  // Safety check to prevent undefined question errors
+  if (!currentQuestion || questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="flex items-center justify-between">
+            <Button variant="outline" onClick={onBack} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Menu
+            </Button>
+          </div>
+          <div className="flex items-center justify-center h-64">
+            <p className="text-lg text-muted-foreground">Loading questions...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleNext = useCallback(() => {
     if (isLastQuestion) {
@@ -46,14 +67,14 @@ export const StudySession: React.FC<StudySessionProps> = ({
       return;
     }
 
-    setCurrentIndex(prev => prev + 1);
+    setCurrentIndex(prev => Math.min(prev + 1, questions.length - 1));
     setShowAnswer(false);
     setSelectedAnswer(null);
-  }, [currentIndex, isLastQuestion, progress, onComplete, startTime]);
+  }, [currentIndex, isLastQuestion, progress, onComplete, startTime, questions.length]);
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
+      setCurrentIndex(prev => Math.max(prev - 1, 0));
       setShowAnswer(false);
       setSelectedAnswer(null);
     }
@@ -107,7 +128,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
         <ProgressBar
           progress={progress}
-          currentQuestion={currentIndex + 1}
+          currentQuestion={safeCurrentIndex + 1}
           totalQuestions={questions.length}
           mode={mode}
         />
@@ -134,7 +155,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
             <Card className="bg-muted/50 border-0">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
-                  <Button variant="outline" onClick={handlePrevious} disabled={currentIndex === 0}>
+                  <Button variant="outline" onClick={handlePrevious} disabled={safeCurrentIndex === 0}>
                     Previous
                   </Button>
                   <span className="text-sm text-muted-foreground px-4">

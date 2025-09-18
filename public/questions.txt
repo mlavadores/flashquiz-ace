@@ -1,0 +1,32 @@
+Question 1 of 529
+A company needs to architect a hybrid DNS solution. This solution will use an Amazon Route 53 private hosted zone for the domain cloud.example.com for the resources stored within VPCs.
+The company has the following DNS resolution requirements:
+On-premises systems should be able to resolve and connect to cloud.example.com.
+All VPCs should be able to resolve cloud.example.com.
+There is already an AWS Direct Connect connection between the on-premises corporate network and AWS Transit Gateway.
+Which architecture should the company use to meet these requirements with the HIGHEST performance?
+A.
+Associate the private hosted zone to all the VPCs. Create a Route 53 inbound resolver in the shared services VPC. Attach all VPCs to the transit gateway and create forwarding rules in the on-premises DNS server for cloud.example.com that point to the inbound resolver.
+B.
+Associate the private hosted zone to all the VPCs. Deploy an Amazon EC2 conditional forwarder in the shared services VPC. Attach all VPCs to the transit gateway and create forwarding rules in the on-premises DNS server for cloud.example.com that point to the conditional forwarder.
+C.
+Associate the private hosted zone to the shared services VPCreate a Route 53 outbound resolver in the shared services VPAttach all VPCs to the transit gateway and create forwarding rules in the on-premises DNS server for cloud.example.com that point to the outbound resolver.
+D.
+Associate the private hosted zone to the shared services VPC. Create a Route 53 inbound resolver in the shared services VPC. Attach the shared services VPC to the transit gateway and create forwarding rules in the on-premises DNS server for cloud.example.com that point to the inbound resolver.
+AnswerDiscussion
+Correct Answer: A
+To achieve the highest performance hybrid DNS solution, the company should associate the Route 53 private hosted zone with all VPCs, ensuring that all VPCs can resolve cloud.example.com. Additionally, creating a Route 53 inbound resolver in the shared services VPC and attaching all VPCs to the transit gateway will allow on-premises systems to resolve the cloud.example.com domain by forwarding rules in the on-premises DNS server pointing to the inbound resolver. This ensures seamless DNS resolution for both on-premises and AWS resources.
+
+Question 2 of 529
+A company is providing weather data over a REST-based API to several customers. The API is hosted by Amazon API Gateway and is integrated with different AWS Lambda functions for each API operation. The company uses Amazon Route 53 for DNS and has created a resource record of weather.example.com. The company stores data for the API in Amazon DynamoDB tables. The company needs a solution that will give the API the ability to fail over to a different AWS Region.
+Which solution will meet these requirements?
+A.
+Deploy a new set of Lambda functions in a new Region. Update the API Gateway API to use an edge-optimized API endpoint with Lambda functions from both Regions as targets. Convert the DynamoDB tables to global tables.
+B.
+Deploy a new API Gateway API and Lambda functions in another Region. Change the Route 53 DNS record to a multivalue answer. Add both API Gateway APIs to the answer. Enable target health monitoring. Convert the DynamoDB tables to global tables.
+C.
+Deploy a new API Gateway API and Lambda functions in another Region. Change the Route 53 DNS record to a failover record. Enable target health monitoring. Convert the DynamoDB tables to global tables.
+D.
+Deploy a new API Gateway API in a new Region. Change the Lambda functions to global functions. Change the Route 53 DNS record to a multivalue answer. Add both API Gateway APIs to the answer. Enable target health monitoring. Convert the DynamoDB tables to global tables.
+Correct Answer: C
+To achieve failover capability for the weather data API, the company should deploy a new API Gateway API and Lambda functions in another AWS Region. The Route 53 DNS record should be changed to a failover record, which allows traffic to be routed to a secondary region if the primary region is unavailable. Enabling target health monitoring ensures that the failover mechanism can detect the health status of the API endpoints and initiate failover when needed. Converting the DynamoDB tables to global tables ensures that the data remains consistent and accessible across multiple regions, allowing the API to function smoothly during a failover event.

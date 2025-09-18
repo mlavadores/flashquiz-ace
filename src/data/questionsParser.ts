@@ -2,7 +2,10 @@ import { Question } from '@/types/study';
 
 export async function parseQuestionsFromFile(): Promise<Question[]> {
   try {
-    const response = await fetch('/src/data/questions.txt');
+    const response = await fetch('/questions.txt');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch questions: ${response.status}`);
+    }
     const text = await response.text();
     
     const questions: Question[] = [];
@@ -22,13 +25,13 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
       // Start of new question
       if (line.startsWith('Question') && line.includes('of') && line.includes('529')) {
         // Save previous question if exists
-        if (currentQuestion.question && choices.length > 0) {
+        if (currentQuestion.question && choices.length > 0 && currentQuestion.answer) {
           questions.push({
-            id: currentQuestion.id || '',
+            id: currentQuestion.id || questionNumber.toString(),
             question: currentQuestion.question,
-            answer: currentQuestion.answer || '',
-            choices,
-            explanation,
+            answer: currentQuestion.answer,
+            choices: [...choices],
+            explanation: explanation.trim(),
             category: 'AWS Solutions Architect',
             difficulty: 'medium'
           } as Question);
@@ -72,7 +75,7 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
       // Check for answer choices (A., B., C., D.)
       if (/^[A-Z]\.$/.test(line)) {
         // Save previous choice if exists
-        if (currentChoice) {
+        if (currentChoice.trim()) {
           choices.push(currentChoice.trim());
         }
         currentChoice = '';
@@ -80,23 +83,25 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
       }
       
       // Check if we're building a choice
-      if (choices.length < 4 && questionText) {
+      if (choices.length < 4 && questionText.trim()) {
         currentChoice += line + ' ';
         continue;
       }
       
       // This is part of the question text
-      questionText += line + ' ';
-      currentQuestion.question = questionText.trim();
+      if (!isInExplanation) {
+        questionText += line + ' ';
+        currentQuestion.question = questionText.trim();
+      }
     }
     
     // Don't forget the last question
-    if (currentQuestion.question && choices.length > 0) {
+    if (currentQuestion.question && choices.length > 0 && currentQuestion.answer) {
       questions.push({
-        id: currentQuestion.id || '',
+        id: currentQuestion.id || questionNumber.toString(),
         question: currentQuestion.question,
-        answer: currentQuestion.answer || '',
-        choices,
+        answer: currentQuestion.answer,
+        choices: [...choices],
         explanation: explanation.trim(),
         category: 'AWS Solutions Architect',
         difficulty: 'medium'

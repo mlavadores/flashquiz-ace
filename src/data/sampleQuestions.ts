@@ -1,20 +1,48 @@
 import { Question } from '@/types/study';
 import { parseQuestionsFromFile } from './questionsParser';
 
+// Validate that a question has all required properties
+const validateQuestion = (question: any): question is Question => {
+  return (
+    question &&
+    typeof question.id === 'string' &&
+    typeof question.question === 'string' &&
+    question.question.trim().length > 0 &&
+    (typeof question.answer === 'string' || Array.isArray(question.answer)) &&
+    Array.isArray(question.choices) &&
+    question.choices.length > 0
+  );
+};
+
+// Filter and validate questions
+const validateQuestions = (questions: any[]): Question[] => {
+  return questions.filter(validateQuestion);
+};
+
 // Cache for parsed questions
 let cachedQuestions: Question[] | null = null;
 
 export const loadQuestions = async (): Promise<Question[]> => {
-  if (cachedQuestions) {
+  if (cachedQuestions && cachedQuestions.length > 0) {
     return cachedQuestions;
   }
   
   try {
-    cachedQuestions = await parseQuestionsFromFile();
-    return cachedQuestions;
+    const parsedQuestions = await parseQuestionsFromFile();
+    const validQuestions = validateQuestions(parsedQuestions);
+    
+    if (validQuestions && validQuestions.length > 0) {
+      cachedQuestions = validQuestions;
+      return cachedQuestions;
+    } else {
+      console.warn('No valid questions parsed from file, using sample questions');
+      cachedQuestions = validateQuestions(sampleQuestions);
+      return cachedQuestions;
+    }
   } catch (error) {
     console.error('Failed to load questions, using sample questions:', error);
-    return sampleQuestions;
+    cachedQuestions = validateQuestions(sampleQuestions);
+    return cachedQuestions;
   }
 };
 

@@ -23,6 +23,18 @@ export const FlashCard: React.FC<FlashCardProps> = ({
   const [currentView, setCurrentView] = useState<'question' | 'answer' | 'explanation'>('question');
   const [isAnimating, setIsAnimating] = useState(false);
 
+  if (!question) {
+    return (
+      <div className={cn("w-full max-w-2xl mx-auto", className)}>
+        <Card className="relative h-80 bg-gradient-card border-0 shadow-card">
+          <CardContent className="flex items-center justify-center h-full p-8 text-center">
+            <p className="text-lg text-muted-foreground">Loading question...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const handleNext = () => {
     if (isAnimating) return;
     setIsAnimating(true);
@@ -45,6 +57,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
   };
 
   const getCorrectAnswers = () => {
+    if (!question?.answer) return [];
     if (Array.isArray(question.answer)) {
       return question.answer;
     }

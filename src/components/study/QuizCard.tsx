@@ -24,6 +24,20 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   const [currentView, setCurrentView] = useState<'question' | 'result' | 'explanation'>('question');
   const [hasAnswered, setHasAnswered] = useState(false);
 
+  if (!question) {
+    return (
+      <div className={cn("w-full max-w-2xl mx-auto", className)}>
+        <Card className="bg-gradient-card border-0 shadow-card">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-center h-32">
+              <p className="text-lg text-muted-foreground">Loading question...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const handleAnswerSelect = (choice: string) => {
     if (hasAnswered) return;
     
@@ -46,6 +60,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   };
 
   const getCorrectAnswers = () => {
+    if (!question?.answer) return [];
     if (Array.isArray(question.answer)) {
       return question.answer;
     }
