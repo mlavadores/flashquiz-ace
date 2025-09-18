@@ -100,7 +100,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                   Click Next to see answers
                 </div>
               </div>
-            )}}
+            )}
             
             {currentView === 'answer' && (
               <div className="space-y-4 w-full max-w-2xl">
@@ -131,7 +131,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                   Click Next for explanation
                 </div>
               </div>
-            )}}
+            )}
             
             {currentView === 'explanation' && (
               <div className="space-y-4 w-full max-w-2xl">
