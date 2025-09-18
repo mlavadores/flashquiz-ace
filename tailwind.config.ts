@@ -47,6 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        study: {
+          primary: "hsl(var(--study-primary))",
+          secondary: "hsl(var(--study-secondary))",
+          success: "hsl(var(--study-success))",
+          warning: "hsl(var(--study-warning))",
+          error: "hsl(var(--study-error))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -62,6 +69,21 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-secondary": "var(--gradient-secondary)",
+        "gradient-hero": "var(--gradient-hero)",
+        "gradient-card": "var(--gradient-card)",
+      },
+      boxShadow: {
+        "card": "var(--shadow-card)",
+        "card-hover": "var(--shadow-card-hover)",
+        "button": "var(--shadow-button)",
+      },
+      transitionTimingFunction: {
+        "smooth": "var(--transition-smooth)",
+        "bounce": "var(--transition-bounce)",
       },
       keyframes: {
         "accordion-down": {
@@ -80,10 +102,25 @@ export default {
             height: "0",
           },
         },
+        "flip": {
+          "0%": { transform: "rotateY(0)" },
+          "50%": { transform: "rotateY(-90deg)" },
+          "100%": { transform: "rotateY(0)" },
+        },
+        "slide-in": {
+          "0%": { transform: "translateY(20px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "progress": {
+          "0%": { strokeDasharray: "0 100" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "flip": "flip 0.6s ease-in-out",
+        "slide-in": "slide-in 0.4s ease-out",
+        "progress": "progress 1s ease-out forwards",
       },
     },
   },
