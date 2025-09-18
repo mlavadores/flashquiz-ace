@@ -19,10 +19,10 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
       <div className="w-full max-w-4xl space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-            Study Tool
+            SAP-C02 Study Tool
           </h1>
           <p className="text-xl text-muted-foreground">
-            Choose your learning mode to master {totalQuestions} questions
+            Master AWS Solutions Architect Professional certification with {totalQuestions} questions
           </p>
         </div>
 

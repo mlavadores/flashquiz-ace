@@ -121,6 +121,10 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  * {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  }
+  
   body {
     @apply bg-background text-foreground;
   }

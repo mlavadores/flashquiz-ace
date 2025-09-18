@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, XCircle, Brain, Trophy } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, XCircle, Brain, Trophy, ArrowRight } from 'lucide-react';
 import { StudyProgress } from '@/types/study';
 
 interface ProgressBarProps {
@@ -9,14 +11,25 @@ interface ProgressBarProps {
   currentQuestion: number;
   totalQuestions: number;
   mode: 'flashcard' | 'quiz';
+  onGoToQuestion?: (questionNumber: number) => void;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   currentQuestion,
   totalQuestions,
-  mode
+  mode,
+  onGoToQuestion
 }) => {
+  const [jumpToQuestion, setJumpToQuestion] = useState('');
+  
+  const handleJumpToQuestion = () => {
+    const questionNum = parseInt(jumpToQuestion);
+    if (questionNum >= 1 && questionNum <= totalQuestions && onGoToQuestion) {
+      onGoToQuestion(questionNum);
+      setJumpToQuestion('');
+    }
+  };
   const progressPercentage = (currentQuestion / totalQuestions) * 100;
   const accuracy = progress.answeredQuestions > 0 ? (progress.correctAnswers / progress.answeredQuestions) * 100 : 0;
 
@@ -35,9 +48,33 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
                 {mode === 'flashcard' ? 'Study Mode' : 'Quiz Mode'}
               </span>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {currentQuestion} of {totalQuestions}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {currentQuestion} of {totalQuestions}
+              </span>
+              {onGoToQuestion && (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    placeholder="Go to #"
+                    value={jumpToQuestion}
+                    onChange={(e) => setJumpToQuestion(e.target.value)}
+                    className="w-20 h-7 text-xs"
+                    min={1}
+                    max={totalQuestions}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleJumpToQuestion}
+                    className="h-7 px-2"
+                    disabled={!jumpToQuestion || parseInt(jumpToQuestion) < 1 || parseInt(jumpToQuestion) > totalQuestions}
+                  >
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, Eye, EyeOff } from 'lucide-react';
@@ -22,6 +22,11 @@ export const FlashCard: React.FC<FlashCardProps> = ({
 }) => {
   const [currentView, setCurrentView] = useState<'question' | 'answer' | 'explanation'>('question');
   const [isAnimating, setIsAnimating] = useState(false);
+  
+  // Reset view when question changes
+  useEffect(() => {
+    setCurrentView('question');
+  }, [question?.id]);
 
   if (!question) {
     return (
@@ -36,24 +41,28 @@ export const FlashCard: React.FC<FlashCardProps> = ({
   }
 
   const handleNext = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setTimeout(() => {
-      if (currentView === 'question') {
-        setCurrentView('answer');
-      } else if (currentView === 'answer') {
-        setCurrentView('explanation');
-      } else {
-        setCurrentView('question');
-        onNext();
-      }
-      setIsAnimating(false);
-    }, 150);
+    if (currentView === 'question') {
+      setCurrentView('answer');
+    } else if (currentView === 'answer') {
+      setCurrentView('explanation');
+    } else {
+      // Reset to question view and move to next question
+      setCurrentView('question');
+      onNext();
+    }
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
     setCurrentView('question');
     onPrevious();
+  };
+
+  const handleNextButton = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    handleNext();
   };
 
   const getCorrectAnswers = () => {
@@ -65,105 +74,106 @@ export const FlashCard: React.FC<FlashCardProps> = ({
   };
 
   return (
-    <div className={cn("w-full max-w-3xl mx-auto", className)}>
-      <Card 
-        className={cn(
-          "relative min-h-96 cursor-pointer bg-gradient-card border-0 shadow-card hover:shadow-card-hover transition-smooth",
-          isAnimating && "animate-flip"
-        )}
-        onClick={handleNext}
-      >
-        <CardContent className="flex items-center justify-center min-h-96 p-8 text-center relative">
-          <div className="absolute top-4 right-4 flex items-center space-x-2">
-            <span className="text-xs text-muted-foreground">
-              {currentView === 'question' ? '1/3' : currentView === 'answer' ? '2/3' : '3/3'}
-            </span>
-            {currentView === 'question' ? (
-              <EyeOff className="h-5 w-5 text-muted-foreground" />
-            ) : currentView === 'answer' ? (
-              <Eye className="h-5 w-5 text-study-success" />
-            ) : (
-              <Eye className="h-5 w-5 text-study-primary" />
-            )}
-          </div>
-          
-          <div className="w-full">
-            {currentView === 'question' && (
-              <div className="space-y-4 w-full max-w-2xl">
-                <div className="text-sm text-muted-foreground font-medium">
-                  Question
-                </div>
-                <p className="text-base font-semibold leading-relaxed text-foreground text-justify">
-                  {question.question}
-                </p>
-                <div className="text-sm text-muted-foreground mt-4">
-                  Click Next to see answers
-                </div>
+    <div className={cn("w-full mx-auto", className)}>
+      <Card className="bg-gradient-card border-0 shadow-card cursor-pointer hover:shadow-lg transition-shadow" onClick={handleNext}>
+        <CardContent className="p-8">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-muted-foreground font-medium">
+                {currentView === 'question' ? 'Flashcard Study' : currentView === 'answer' ? 'Study - Answers Revealed' : 'Study - Full Explanation'}
               </div>
-            )}
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-muted-foreground">
+                  {currentView === 'question' ? '1/3' : currentView === 'answer' ? '2/3' : '3/3'}
+                </span>
+                {currentView === 'question' ? (
+                  <EyeOff className="h-5 w-5 text-muted-foreground" />
+                ) : currentView === 'answer' ? (
+                  <Eye className="h-5 w-5 text-study-success" />
+                ) : (
+                  <Eye className="h-5 w-5 text-study-primary" />
+                )}
+              </div>
+            </div>
             
-            {currentView === 'answer' && (
-              <div className="space-y-4 w-full max-w-2xl">
-                <div className="text-sm text-study-secondary font-medium">
-                  Answer Choices
-                </div>
-                <div className="space-y-2">
-                  {question.choices?.map((choice, index) => {
-                    const letter = String.fromCharCode(65 + index);
-                    const isCorrect = getCorrectAnswers().includes(letter);
-                    return (
-                      <div
-                        key={index}
-                        className={cn(
-                          "p-3 rounded-lg border text-left text-sm",
-                          isCorrect 
-                            ? "bg-study-success/10 border-study-success text-study-success" 
-                            : "bg-muted border-border"
-                        )}
-                      >
-                        <span className="font-medium">{letter}. </span>
+            {/* Question - Always visible */}
+            <div className="space-y-4">
+              <p className="text-xl font-semibold leading-relaxed text-foreground text-justify">
+                {question.question}
+              </p>
+            </div>
+
+            {/* Answer Choices - Show when in answer or explanation view */}
+            {(currentView === 'answer' || currentView === 'explanation') && (
+              <div className="space-y-3">
+                {question.choices?.map((choice, index) => {
+                  const letter = String.fromCharCode(65 + index);
+                  const isCorrect = getCorrectAnswers().includes(letter);
+                  return (
+                    <div
+                      key={index}
+                      className={cn(
+                        "p-4 rounded-lg border flex items-start space-x-3",
+                        isCorrect 
+                          ? "bg-study-success/10 border-study-success" 
+                          : "bg-muted border-border"
+                      )}
+                    >
+                      <span className="font-bold text-base mt-0.5 flex-shrink-0">
+                        {letter}.
+                      </span>
+                      <span className="flex-1 text-base leading-relaxed">
                         {choice}
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="text-sm text-muted-foreground mt-4">
-                  Click Next for explanation
-                </div>
+                      </span>
+                      {isCorrect && (
+                        <div className="h-6 w-6 rounded-full bg-study-success flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
-            
+
+            {/* Explanation - Show only in explanation view */}
             {currentView === 'explanation' && (
-              <div className="space-y-4 w-full max-w-2xl">
-                <div className="text-sm text-study-primary font-medium">
+              <div className="space-y-4 border-t pt-6">
+                <div className="text-base text-study-primary font-semibold">
                   Explanation
                 </div>
-                <p className="text-sm leading-relaxed text-foreground text-left">
+                <p className="text-base leading-relaxed text-foreground text-left">
                   {question.explanation || 'No explanation available.'}
                 </p>
-                <div className="text-sm text-muted-foreground mt-4">
-                  Click Next for next question
-                </div>
               </div>
             )}
+
+            {/* Click hint */}
+            <div className="text-center pt-4 border-t">
+              <p className="text-xs text-muted-foreground">
+                {currentView === 'question' ? 'Click anywhere to reveal answers' : 
+                 currentView === 'answer' ? 'Click anywhere to show explanation' : 
+                 'Click anywhere for next question'}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {showNavigation && (
-        <div className="flex justify-between items-center mt-6">
-          <Button variant="outline" onClick={handlePrevious}>
+        <div className="flex justify-between items-center mt-8">
+          <Button variant="outline" onClick={handlePrevious} className="text-base px-6 py-3">
             Previous
           </Button>
           <div className="text-sm text-muted-foreground">
             {question.category && (
-              <span className="px-2 py-1 bg-secondary rounded-full text-xs">
+              <span className="px-3 py-1 bg-secondary rounded-full text-sm font-medium">
                 {question.category}
               </span>
             )}
           </div>
-          <Button variant="study" onClick={handleNext}>
-            {currentView === 'explanation' ? 'Next Question' : 'Next'}
+          <Button variant="study" onClick={handleNextButton} className="text-base px-6 py-3">
+            {currentView === 'question' ? 'Show Answers' : currentView === 'answer' ? 'Show Explanation' : 'Next Question'}
           </Button>
         </div>
       )}

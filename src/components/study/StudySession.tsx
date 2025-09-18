@@ -81,6 +81,12 @@ export const StudySession: React.FC<StudySessionProps> = ({
   }, [currentIndex]);
 
   const handleQuizAnswer = useCallback((isCorrect: boolean, answer: string) => {
+    // If answer is empty, it means we're just moving to next question (from explanation)
+    if (answer === '') {
+      handleNext();
+      return;
+    }
+    
     setSelectedAnswer(answer);
     
     const newProgress = {
@@ -90,12 +96,8 @@ export const StudySession: React.FC<StudySessionProps> = ({
       incorrectAnswers: progress.incorrectAnswers + (isCorrect ? 0 : 1),
     };
     
-    newProgress.accuracy = (newProgress.correctAnswers / newProgress.answeredQuestions) * 100;
+    newProgress.accuracy = newProgress.answeredQuestions > 0 ? (newProgress.correctAnswers / newProgress.answeredQuestions) * 100 : 0;
     setProgress(newProgress);
-
-    setTimeout(() => {
-      handleNext();
-    }, 2000);
   }, [progress, handleNext]);
 
   const handleRestart = () => {
@@ -110,6 +112,15 @@ export const StudySession: React.FC<StudySessionProps> = ({
     });
     setShowAnswer(false);
     setSelectedAnswer(null);
+  };
+  
+  const handleGoToQuestion = (questionNumber: number) => {
+    const newIndex = questionNumber - 1;
+    if (newIndex >= 0 && newIndex < questions.length) {
+      setCurrentIndex(newIndex);
+      setShowAnswer(false);
+      setSelectedAnswer(null);
+    }
   };
 
   return (
@@ -131,6 +142,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
           currentQuestion={safeCurrentIndex + 1}
           totalQuestions={questions.length}
           mode={mode}
+          onGoToQuestion={handleGoToQuestion}
         />
 
         <div className="flex flex-col items-center space-y-6">
