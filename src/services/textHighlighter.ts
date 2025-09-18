@@ -12,35 +12,27 @@ export interface HighlightedText {
 
 class TextHighlighterService {
   async highlightText(text: string): Promise<HighlightedText> {
-    try {
-      // Use your Amplify API endpoint here
-      const apiUrl = 'https://YOUR_AMPLIFY_API_ID.execute-api.YOUR_REGION.amazonaws.com/dev/highlightText';
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to highlight text');
+    const keyPhrases: KeyPhrase[] = [];
+    const importantWords = ['which', 'what', 'how', 'when', 'where', 'why', 'who', 'best', 'most', 'correct', 'primary', 'main'];
+    
+    importantWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        keyPhrases.push({
+          text: match[0],
+          score: 0.9,
+          beginOffset: match.index,
+          endOffset: match.index + match[0].length
+        });
       }
+    });
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error highlighting text:', error);
-      // Fallback to simple highlighting
-      return {
-        original: text,
-        keyPhrases: []
-      };
-    }
+    return {
+      original: text,
+      keyPhrases: keyPhrases.sort((a, b) => a.beginOffset - b.beginOffset)
+    };
   }
-
-
 }
 
 export const textHighlighter = new TextHighlighterService();
