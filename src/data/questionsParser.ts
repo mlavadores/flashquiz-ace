@@ -9,9 +9,10 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
     const text = await response.text();
     
     const questions: Question[] = [];
-    const sections = text.split(/Question \d+ of 529/).filter(section => section.trim().length > 0);
+    // Split by "Question X of 529" pattern
+    const sections = text.split(/Question \d+ of 529/);
     
-    for (let i = 0; i < sections.length; i++) {
+    for (let i = 1; i < sections.length; i++) { // Start from 1 to skip the first empty section
       const section = sections[i].trim();
       if (!section) continue;
       
@@ -22,21 +23,28 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
       let answer = '';
       let explanation = '';
       let isInAnswerSection = false;
+      let isCollectingChoices = false;
       let currentChoice = '';
       
       for (let j = 0; j < lines.length; j++) {
         const line = lines[j];
         
-        // Check for answer section
+        // Check for answer section markers
         if (line === 'AnswerDiscussion' || line.startsWith('Correct Answer:')) {
+          // Save any pending choice before entering answer section
+          if (currentChoice.trim() && choices.length < 4) {
+            choices.push(currentChoice.trim());
+            currentChoice = '';
+          }
           isInAnswerSection = true;
+          isCollectingChoices = false;
           if (line.startsWith('Correct Answer:')) {
             answer = line.replace('Correct Answer:', '').trim();
           }
           continue;
         }
         
-        // Collect explanation text
+        // Collect explanation text in answer section
         if (isInAnswerSection) {
           if (line.startsWith('Correct Answer:')) {
             answer = line.replace('Correct Answer:', '').trim();
@@ -46,43 +54,39 @@ export async function parseQuestionsFromFile(): Promise<Question[]> {
           continue;
         }
         
-        // Check for answer choices (A., B., C., D.)
+        // Check for choice markers (A., B., C., D.)
         if (/^[A-D]\.$/.test(line)) {
           // Save previous choice if exists
-          if (currentChoice.trim()) {
+          if (currentChoice.trim() && choices.length < 4) {
             choices.push(currentChoice.trim());
           }
+          isCollectingChoices = true;
           currentChoice = '';
           continue;
         }
         
-        // Check if we're building a choice (after seeing A., B., etc.)
-        if (choices.length < 4 && questionText.trim() && /^[A-D]\.$/.test(lines[j-1] || '')) {
-          currentChoice = line;
-          continue;
-        }
-        
-        // Continue building current choice
-        if (currentChoice && choices.length < 4) {
-          currentChoice += ' ' + line;
-          continue;
-        }
-        
-        // This is part of the question text
-        if (!isInAnswerSection && !currentChoice) {
-          questionText += line + ' ';
+        // Collect choice text or question text
+        if (isCollectingChoices) {
+          currentChoice += (currentChoice ? ' ' : '') + line;
+        } else {
+          questionText += (questionText ? ' ' : '') + line;
         }
       }
       
-      // Add the last choice if exists
-      if (currentChoice.trim()) {
+      // Save any remaining choice
+      if (currentChoice.trim() && choices.length < 4) {
         choices.push(currentChoice.trim());
       }
       
       // Create question if we have all required parts
-      if (questionText.trim() && choices.length >= 2 && answer) {
+      if (questionText.trim() && choices.length >= 2) {
+        // If no explicit answer found, use the first choice as default
+        if (!answer && choices.length > 0) {
+          answer = choices[0];
+        }
+        
         questions.push({
-          id: (i + 1).toString(),
+          id: i.toString(),
           question: questionText.trim(),
           answer: answer,
           choices: choices,
