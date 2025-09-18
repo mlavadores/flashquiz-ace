@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, Eye, EyeOff } from 'lucide-react';
 import { Question } from '@/types/study';
 import { cn } from '@/lib/utils';
+import { HighlightedText } from './HighlightedText';
+import { textHighlighter, HighlightedText as HighlightedTextType } from '@/services/textHighlighter';
 
 interface FlashCardProps {
   question: Question;
@@ -22,10 +24,16 @@ export const FlashCard: React.FC<FlashCardProps> = ({
 }) => {
   const [currentView, setCurrentView] = useState<'question' | 'answer' | 'explanation'>('question');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [highlightedQuestion, setHighlightedQuestion] = useState<HighlightedTextType | null>(null);
   
   // Reset view when question changes
   useEffect(() => {
     setCurrentView('question');
+    if (question?.question) {
+      textHighlighter.highlightText(question.question)
+        .then(setHighlightedQuestion)
+        .catch(() => setHighlightedQuestion(null));
+    }
   }, [question?.id]);
 
   if (!question) {
@@ -99,7 +107,14 @@ export const FlashCard: React.FC<FlashCardProps> = ({
             {/* Question - Always visible */}
             <div className="space-y-4">
               <p className="text-xl font-semibold leading-relaxed text-foreground text-justify">
-                {question.question}
+                {highlightedQuestion ? (
+                  <HighlightedText 
+                    text={highlightedQuestion.original}
+                    keyPhrases={highlightedQuestion.keyPhrases}
+                  />
+                ) : (
+                  question.question
+                )}
               </p>
             </div>
 
