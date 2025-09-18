@@ -6,11 +6,13 @@ import { Brain, Trophy, BookOpen, Target } from 'lucide-react';
 interface StudyModeSelectorProps {
   onModeSelect: (mode: 'flashcard' | 'quiz') => void;
   totalQuestions: number;
+  isLoading?: boolean;
 }
 
 export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
   onModeSelect,
-  totalQuestions
+  totalQuestions,
+  isLoading = false
 }) => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

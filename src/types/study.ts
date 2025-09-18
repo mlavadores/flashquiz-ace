@@ -1,10 +1,11 @@
 export interface Question {
   id: string;
   question: string;
-  answer: string;
+  answer: string | string[];
   choices?: string[];
   category?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
+  explanation?: string;
 }
 
 export interface StudySession {

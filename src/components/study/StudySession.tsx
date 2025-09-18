@@ -59,7 +59,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     }
   }, [currentIndex]);
 
-  const handleQuizAnswer = useCallback((answer: string, isCorrect: boolean) => {
+  const handleQuizAnswer = useCallback((isCorrect: boolean, answer: string) => {
     setSelectedAnswer(answer);
     
     const newProgress = {

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StudyModeSelector } from '@/components/study/StudyModeSelector';
 import { StudySession } from '@/components/study/StudySession';
 import { StudyResults } from '@/components/study/StudyResults';
-import { sampleQuestions } from '@/data/sampleQuestions';
-import { StudyProgress } from '@/types/study';
+import { loadQuestions, sampleQuestions } from '@/data/sampleQuestions';
+import { StudyProgress, Question } from '@/types/study';
 
 type AppState = 'menu' | 'studying' | 'results';
 
@@ -11,6 +11,24 @@ const Index = () => {
   const [appState, setAppState] = useState<AppState>('menu');
   const [studyMode, setStudyMode] = useState<'flashcard' | 'quiz' | null>(null);
   const [studyResults, setStudyResults] = useState<StudyProgress | null>(null);
+  const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
+  const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    const loadAllQuestions = async () => {
+      setIsLoading(true);
+      try {
+        const loadedQuestions = await loadQuestions();
+        setQuestions(loadedQuestions);
+      } catch (error) {
+        console.error('Failed to load questions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadAllQuestions();
+  }, []);
 
   const handleModeSelect = (mode: 'flashcard' | 'quiz') => {
     setStudyMode(mode);
@@ -42,7 +60,8 @@ const Index = () => {
     return (
       <StudyModeSelector
         onModeSelect={handleModeSelect}
-        totalQuestions={sampleQuestions.length}
+        totalQuestions={questions.length}
+        isLoading={isLoading}
       />
     );
   }
@@ -50,7 +69,7 @@ const Index = () => {
   if (appState === 'studying' && studyMode) {
     return (
       <StudySession
-        questions={sampleQuestions}
+        questions={questions}
         mode={studyMode}
         onBack={handleBackToMenu}
         onComplete={handleStudyComplete}

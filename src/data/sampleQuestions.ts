@@ -1,4 +1,22 @@
 import { Question } from '@/types/study';
+import { parseQuestionsFromFile } from './questionsParser';
+
+// Cache for parsed questions
+let cachedQuestions: Question[] | null = null;
+
+export const loadQuestions = async (): Promise<Question[]> => {
+  if (cachedQuestions) {
+    return cachedQuestions;
+  }
+  
+  try {
+    cachedQuestions = await parseQuestionsFromFile();
+    return cachedQuestions;
+  } catch (error) {
+    console.error('Failed to load questions, using sample questions:', error);
+    return sampleQuestions;
+  }
+};
 
 export const sampleQuestions: Question[] = [
   {
@@ -7,7 +25,8 @@ export const sampleQuestions: Question[] = [
     answer: 'Paris',
     choices: ['London', 'Berlin', 'Paris', 'Madrid'],
     category: 'Geography',
-    difficulty: 'easy'
+    difficulty: 'easy',
+    explanation: 'Paris is the capital and most populous city of France.'
   },
   {
     id: '2',
