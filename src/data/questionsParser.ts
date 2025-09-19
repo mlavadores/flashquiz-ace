@@ -74,7 +74,7 @@ function parseQuestionSection(section: string, questionNumber: number): Question
     // Check for answer section markers
     if (line === 'AnswerDiscussion' || line.startsWith('Correct Answer:')) {
       // Save any pending choice before entering answer section
-      if (currentChoice.trim() && choices.length < 4) {
+      if (currentChoice.trim()) {
         choices.push(currentChoice.trim());
         currentChoice = '';
       }
@@ -108,10 +108,10 @@ function parseQuestionSection(section: string, questionNumber: number): Question
       continue;
     }
     
-    // Check for choice markers (A., B., C., D.)
-    if (/^[A-D]\.$/.test(line)) {
+    // Check for choice markers (A., B., C., D., E., F.)
+    if (/^[A-F]\.$/.test(line)) {
       // Save previous choice if exists
-      if (currentChoice.trim() && choices.length < 4) {
+      if (currentChoice.trim()) {
         choices.push(currentChoice.trim());
       }
       isCollectingChoices = true;
@@ -128,7 +128,7 @@ function parseQuestionSection(section: string, questionNumber: number): Question
   }
   
   // Save any remaining choice
-  if (currentChoice.trim() && choices.length < 4) {
+  if (currentChoice.trim()) {
     choices.push(currentChoice.trim());
   }
   
