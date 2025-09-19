@@ -160,6 +160,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
                 question={currentQuestion}
                 onAnswer={handleQuizAnswer}
                 selectedAnswer={selectedAnswer}
+                className="w-full max-w-3xl"
               />
             )}
           </div>
