@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { FlashCard } from './FlashCard';
@@ -6,6 +6,7 @@ import { QuizCard } from './QuizCard';
 import { ProgressBar } from './ProgressBar';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Question, StudyProgress } from '@/types/study';
+import { progressStorage } from '@/services/progressStorage';
 
 interface StudySessionProps {
   questions: Question[];
@@ -32,6 +33,22 @@ export const StudySession: React.FC<StudySessionProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [startTime] = useState(Date.now());
+
+  // Load saved progress on mount
+  useEffect(() => {
+    const savedProgress = progressStorage.load();
+    if (savedProgress && savedProgress.mode === mode && savedProgress.totalQuestions === questions.length) {
+      setCurrentIndex(savedProgress.currentIndex);
+      setProgress(savedProgress.progress);
+    }
+  }, [mode, questions.length]);
+
+  // Save progress whenever it changes
+  useEffect(() => {
+    if (progress.answeredQuestions > 0 || currentIndex > 0) {
+      progressStorage.save(mode, currentIndex, progress, questions.length);
+    }
+  }, [currentIndex, progress, mode, questions.length]);
 
   // Ensure currentIndex is within bounds
   const safeCurrentIndex = Math.max(0, Math.min(currentIndex, questions.length - 1));
@@ -63,6 +80,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
         ...progress,
         timeSpent: Date.now() - startTime
       };
+      progressStorage.clear();
       onComplete(finalProgress);
       return;
     }
@@ -101,6 +119,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   }, [progress, handleNext]);
 
   const handleRestart = () => {
+    progressStorage.clear();
     setCurrentIndex(0);
     setProgress({
       totalQuestions: questions.length,

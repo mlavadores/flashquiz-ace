@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Brain, Trophy, BookOpen, Target } from 'lucide-react';
+import { Brain, Trophy, BookOpen, Target, Play } from 'lucide-react';
+import { progressStorage } from '@/services/progressStorage';
 
 interface StudyModeSelectorProps {
   onModeSelect: (mode: 'flashcard' | 'quiz') => void;
@@ -14,6 +15,25 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
   totalQuestions,
   isLoading = false
 }) => {
+  const [savedProgress, setSavedProgress] = useState<any>(null);
+
+  useEffect(() => {
+    const progress = progressStorage.load();
+    if (progress && progress.totalQuestions === totalQuestions) {
+      setSavedProgress(progress);
+    }
+  }, [totalQuestions]);
+
+  const handleContinue = () => {
+    if (savedProgress) {
+      onModeSelect(savedProgress.mode);
+    }
+  };
+
+  const handleNewSession = (mode: 'flashcard' | 'quiz') => {
+    progressStorage.clear();
+    onModeSelect(mode);
+  };
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-4xl space-y-8">
@@ -25,6 +45,24 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
             Master AWS Solutions Architect Professional certification with {totalQuestions} questions
           </p>
         </div>
+
+        {savedProgress && (
+          <Card className="bg-gradient-primary/10 border-primary/20">
+            <CardContent className="p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Play className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Continue Previous Session</h3>
+              </div>
+              <p className="text-muted-foreground mb-4">
+                {savedProgress.mode === 'flashcard' ? 'Flashcard' : 'Quiz'} mode • Question {savedProgress.currentIndex + 1} of {savedProgress.totalQuestions}
+                {savedProgress.mode === 'quiz' && ` • ${savedProgress.progress.correctAnswers}/${savedProgress.progress.answeredQuestions} correct`}
+              </p>
+              <Button variant="hero" onClick={handleContinue}>
+                Continue Session
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid md:grid-cols-2 gap-6">
           <Card className="group cursor-pointer bg-gradient-card border-0 shadow-card hover:shadow-card-hover transition-smooth">
@@ -55,7 +93,7 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
               <Button 
                 variant="hero" 
                 className="w-full mt-6"
-                onClick={() => onModeSelect('flashcard')}
+                onClick={() => handleNewSession('flashcard')}
               >
                 Start Studying
               </Button>
@@ -90,7 +128,7 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
               <Button 
                 variant="hero" 
                 className="w-full mt-6"
-                onClick={() => onModeSelect('quiz')}
+                onClick={() => handleNewSession('quiz')}
               >
                 Start Quiz
               </Button>
