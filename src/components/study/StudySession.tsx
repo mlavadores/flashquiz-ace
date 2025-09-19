@@ -153,14 +153,13 @@ export const StudySession: React.FC<StudySessionProps> = ({
                 onNext={handleNext}
                 onPrevious={handlePrevious}
                 showNavigation={false}
-                className="w-full max-w-3xl"
+                className="w-full"
               />
             ) : (
               <QuizCard
                 question={currentQuestion}
                 onAnswer={handleQuizAnswer}
                 selectedAnswer={selectedAnswer}
-                className="w-full max-w-3xl"
               />
             )}
           </div>
