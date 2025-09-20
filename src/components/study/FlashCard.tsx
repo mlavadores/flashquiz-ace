@@ -85,7 +85,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
     const correctAnswers = getCorrectAnswers();
     const correctAnswerText = correctAnswers.join(', ');
     
-    let fullText = `Rewrite this text to provide as output an easy-to-understand explanation of this question and its correct answer explain also why not are right all the suggested answers: `;
+    let fullText = `Reescribe la siguiente pregunta de examen de AWS en una explicación clara y fácil de entender. El resultado debe incluir: Una versión simplificada de la pregunta. La respuesta correcta, con una explicación de por qué es la opción correcta. Una explicación de por qué cada una de las demás opciones no es correcta. La explicación debe ser concisa pero lo suficientemente detallada para ayudar a alguien que estudia para la certificación AWS a comprender la lógica detrás de la respuesta: `;
     fullText += `\n\n${question.question}`;
     
     if (question.choices) {
