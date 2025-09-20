@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { RotateCcw, Eye, EyeOff, Copy } from 'lucide-react';
 import { Question } from '@/types/study';
 import { cn } from '@/lib/utils';
 import { HighlightedText } from './HighlightedText';
@@ -81,6 +81,36 @@ export const FlashCard: React.FC<FlashCardProps> = ({
     return [question.answer];
   };
 
+  const handleCopyToChatGPT = async () => {
+    const correctAnswers = getCorrectAnswers();
+    const correctAnswerText = correctAnswers.join(', ');
+    
+    let fullText = `Rewrite this text to provide as output an easy-to-understand explanation of this question and its correct answer explain also why not are right all the suggested answers: `;
+    fullText += `\n\n${question.question}`;
+    
+    if (question.choices) {
+      fullText += `\n\nOptions:`;
+      question.choices.forEach((choice, index) => {
+        const letter = String.fromCharCode(65 + index);
+        fullText += `\n${letter}. ${choice}`;
+      });
+    }
+    
+    fullText += `\n\nCorrect Answer: ${correctAnswerText}`;
+    
+    if (question.explanation) {
+      fullText += `\n\nExplanation: ${question.explanation}`;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(fullText);
+      const chatGPTUrl = `https://chat.openai.com/?q=${encodeURIComponent(fullText)}`;
+      window.open(chatGPTUrl, '_blank');
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
+  };
+
   return (
     <div className={cn("w-full mx-auto", className)}>
       <Card className="bg-gradient-card border-0 shadow-card cursor-pointer hover:shadow-lg transition-shadow" onClick={handleNext}>
@@ -91,6 +121,18 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                 {currentView === 'question' ? 'Flashcard Study' : currentView === 'answer' ? 'Study - Answers Revealed' : 'Study - Full Explanation'}
               </div>
               <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyToChatGPT();
+                  }}
+                  className="text-xs px-2 py-1 h-7"
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  ChatGPT
+                </Button>
                 <span className="text-xs text-muted-foreground">
                   {currentView === 'question' ? '1/3' : currentView === 'answer' ? '2/3' : '3/3'}
                 </span>
