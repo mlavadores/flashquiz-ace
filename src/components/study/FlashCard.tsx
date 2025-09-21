@@ -199,7 +199,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                 <div className="text-base text-study-primary font-semibold">
                   Explanation
                 </div>
-                <p className="text-base leading-relaxed text-foreground text-left">
+                <p className="text-base leading-relaxed text-foreground text-justify">
                   {question.explanation || 'No explanation available.'}
                 </p>
               </div>

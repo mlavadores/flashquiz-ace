@@ -306,7 +306,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                 <div className="text-sm text-study-primary font-medium">
                   Explanation
                 </div>
-                <p className="text-base leading-relaxed text-foreground text-left">
+                <p className="text-base leading-relaxed text-foreground text-justify">
                   {question.explanation || 'No explanation available.'}
                 </p>
                 <div className="text-center">

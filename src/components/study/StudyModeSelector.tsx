@@ -43,7 +43,7 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
             <ThemeToggle />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-            SAP-C02 Study Tool
+            SAP-C02
           </h1>
           <p className="text-xl text-muted-foreground">
             Master AWS Solutions Architect Professional certification with {totalQuestions} questions
