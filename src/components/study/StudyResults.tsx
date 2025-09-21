@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Trophy, Target, Clock, RefreshCw, ArrowLeft, Star } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { StudyProgress } from '@/types/study';
 
 interface StudyResultsProps {
@@ -36,6 +37,9 @@ export const StudyResults: React.FC<StudyResultsProps> = ({
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-2xl space-y-6">
+        <div className="flex justify-end">
+          <ThemeToggle />
+        </div>
         <div className="text-center space-y-4">
           <div className="mx-auto p-4 bg-gradient-primary rounded-full w-fit">
             <Trophy className="h-12 w-12 text-white" />

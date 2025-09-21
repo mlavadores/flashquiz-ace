@@ -5,6 +5,7 @@ import { FlashCard } from './FlashCard';
 import { QuizCard } from './QuizCard';
 import { ProgressBar } from './ProgressBar';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Question, StudyProgress } from '@/types/study';
 import { progressStorage } from '@/services/progressStorage';
 
@@ -150,10 +151,13 @@ export const StudySession: React.FC<StudySessionProps> = ({
             <ArrowLeft className="h-4 w-4" />
             Back to Menu
           </Button>
-          <Button variant="ghost" onClick={handleRestart} className="gap-2">
-            <RotateCcw className="h-4 w-4" />
-            Restart
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button variant="ghost" onClick={handleRestart} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Restart
+            </Button>
+          </div>
         </div>
 
         <ProgressBar
