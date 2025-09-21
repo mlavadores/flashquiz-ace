@@ -38,10 +38,10 @@ export const StudyModeSelector: React.FC<StudyModeSelectorProps> = ({
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-4xl space-y-8">
-        <div className="flex justify-end">
-          <ThemeToggle />
-        </div>
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-4 relative">
+          <div className="absolute top-0 right-0">
+            <ThemeToggle />
+          </div>
           <h1 className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent">
             SAP-C02 Study Tool
           </h1>
