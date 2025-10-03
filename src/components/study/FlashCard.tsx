@@ -111,6 +111,13 @@ export const FlashCard: React.FC<FlashCardProps> = ({
     }
   };
 
+  const handleDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (currentView === 'question') {
+      setCurrentView('answer');
+    }
+  };
+
   return (
     <div className={cn("w-full mx-auto", className)}>
       <Card className="bg-gradient-card border-0 shadow-card cursor-pointer hover:shadow-lg transition-shadow" onClick={handleNext}>
@@ -148,7 +155,11 @@ export const FlashCard: React.FC<FlashCardProps> = ({
             
             {/* Question - Always visible */}
             <div className="space-y-4">
-              <p className="text-xl font-semibold leading-relaxed text-foreground text-justify">
+              <p 
+                className="text-xl font-semibold leading-relaxed text-foreground text-justify select-text cursor-text"
+                onDoubleClick={handleDoubleClick}
+                onClick={(e) => e.stopPropagation()}
+              >
                 {highlightedQuestion ? (
                   <HighlightedText 
                     text={highlightedQuestion.original}
