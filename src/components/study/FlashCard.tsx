@@ -148,8 +148,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
             
             {/* Question - Always visible */}
             <div className="space-y-4">
-              <p 
-                className="text-xl font-semibold leading-relaxed text-foreground text-justify">
+              <p className="text-xl font-semibold leading-relaxed text-foreground text-justify">
                 {highlightedQuestion ? (
                   <HighlightedText 
                     text={highlightedQuestion.original}
