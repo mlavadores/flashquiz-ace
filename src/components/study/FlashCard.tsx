@@ -22,7 +22,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
   showNavigation = true,
   className
 }) => {
-  const [currentView, setCurrentView] = useState<'question' | 'answer' | 'explanation'>('question');
+  const [currentView, setCurrentView] = useState<'question' | 'revealed'>('question');
   const [isAnimating, setIsAnimating] = useState(false);
   const [highlightedQuestion, setHighlightedQuestion] = useState<HighlightedTextType | null>(null);
   
@@ -50,9 +50,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
 
   const handleNext = () => {
     if (currentView === 'question') {
-      setCurrentView('answer');
-    } else if (currentView === 'answer') {
-      setCurrentView('explanation');
+      setCurrentView('revealed');
     } else {
       // Reset to question view and move to next question
       setCurrentView('question');
@@ -118,7 +116,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div className="text-sm text-muted-foreground font-medium">
-                {currentView === 'question' ? 'Flashcard Study' : currentView === 'answer' ? 'Study - Answers Revealed' : 'Study - Full Explanation'}
+                {currentView === 'question' ? 'Flashcard Study' : 'Study - Full Answer & Explanation'}
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -134,14 +132,12 @@ export const FlashCard: React.FC<FlashCardProps> = ({
                   ChatGPT
                 </Button>
                 <span className="text-xs text-muted-foreground">
-                  {currentView === 'question' ? '1/3' : currentView === 'answer' ? '2/3' : '3/3'}
+                  {currentView === 'question' ? '1/2' : '2/2'}
                 </span>
                 {currentView === 'question' ? (
                   <EyeOff className="h-5 w-5 text-muted-foreground" />
-                ) : currentView === 'answer' ? (
-                  <Eye className="h-5 w-5 text-study-success" />
                 ) : (
-                  <Eye className="h-5 w-5 text-study-primary" />
+                  <Eye className="h-5 w-5 text-study-success" />
                 )}
               </div>
             </div>
@@ -160,8 +156,8 @@ export const FlashCard: React.FC<FlashCardProps> = ({
               </p>
             </div>
 
-            {/* Answer Choices - Show when in answer or explanation view */}
-            {(currentView === 'answer' || currentView === 'explanation') && (
+            {/* Answer Choices - Show when revealed */}
+            {currentView === 'revealed' && (
               <div className="space-y-3">
                 {question.choices?.map((choice, index) => {
                   const letter = String.fromCharCode(65 + index);
@@ -193,8 +189,8 @@ export const FlashCard: React.FC<FlashCardProps> = ({
               </div>
             )}
 
-            {/* Explanation - Show only in explanation view */}
-            {currentView === 'explanation' && (
+            {/* Explanation - Show when revealed */}
+            {currentView === 'revealed' && (
               <div className="space-y-4 border-t pt-6">
                 <div className="text-base text-study-primary font-semibold">
                   Explanation
@@ -208,8 +204,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
             {/* Click hint */}
             <div className="text-center pt-4 border-t">
               <p className="text-xs text-muted-foreground">
-                {currentView === 'question' ? 'Click anywhere to reveal answers' : 
-                 currentView === 'answer' ? 'Click anywhere to show explanation' : 
+                {currentView === 'question' ? 'Click anywhere to reveal answers & explanation' : 
                  'Click anywhere for next question'}
               </p>
             </div>
@@ -230,7 +225,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({
             )}
           </div>
           <Button variant="study" onClick={handleNextButton} className="text-base px-6 py-3">
-            {currentView === 'question' ? 'Show Answers' : currentView === 'answer' ? 'Show Explanation' : 'Next Question'}
+            {currentView === 'question' ? 'Show Answers' : 'Next Question'}
           </Button>
         </div>
       )}
